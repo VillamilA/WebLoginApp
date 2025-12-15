@@ -1,7 +1,14 @@
 const express = require('express');
 const path = require('path');
 const fetch = require('node-fetch');
-require('dotenv').config(path.join(__dirname, '../.env'));
+
+// Cargar .env solo si existe (para desarrollo local)
+try {
+  require('dotenv').config({ path: path.join(__dirname, '.env') });
+} catch (e) {
+  // En producción (Railway), las variables están en process.env
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
