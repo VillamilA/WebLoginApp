@@ -31,7 +31,7 @@ app.get('/reset-password', async (req, res) => {
     try {
       console.log('Intentando intercambiar code...');
       const response = await fetch(
-        `${process.env.SUPABASE_URL}/auth/v1/verify`,
+        `${process.env.SUPABASE_URL}/auth/v1/token?grant_type=pkce`,
         {
           method: 'POST',
           headers: {
@@ -39,8 +39,7 @@ app.get('/reset-password', async (req, res) => {
             'apikey': process.env.SUPABASE_ANON_KEY
           },
           body: JSON.stringify({
-            token: code,
-            type: 'recovery'
+            code: code
           })
         }
       );
