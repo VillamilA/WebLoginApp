@@ -27,12 +27,11 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
     return;
   }
 
-  // Obtener access token de la URL
-  const hash = window.location.hash.substring(1);
-  const params = new URLSearchParams(hash);
-  const accessToken = params.get('access_token');
+  // Obtener code de la URL (parámetro de query)
+  const searchParams = new URLSearchParams(window.location.search);
+  const code = searchParams.get('code');
 
-  if (!accessToken) {
+  if (!code) {
     errorDiv.textContent = 'Token inválido o expirado';
     errorDiv.style.display = 'block';
     return;
@@ -43,11 +42,30 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
   btnLoader.style.display = 'inline-block';
 
   try {
+    // Primero, intercambiar el code por un access_token
+    const tokenResponse = await fetch(`${SUPABASE_URL}/auth/v1/oauth/code/exchange`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        code: code,
+        grant_type: 'recovery'
+      })
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error('No se pudo validar el token de recuperación');
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    // Ahora cambiar la contraseña con el access_token
     const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${accessToken}`
       },
       body: JSON.stringify({ password })
