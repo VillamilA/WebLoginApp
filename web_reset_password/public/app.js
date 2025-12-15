@@ -58,6 +58,11 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
   btnLoader.style.display = 'inline-block';
 
   try {
+    console.log('=== Enviando solicitud a Supabase ===');
+    console.log('URL:', `${SUPABASE_URL}/auth/v1/user`);
+    console.log('Access Token:', accessToken.substring(0, 20) + '...');
+    console.log('Password length:', password.length);
+    
     const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       method: 'PUT',
       headers: {
@@ -68,7 +73,11 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ password })
     });
 
+    console.log('Status de respuesta:', response.status);
+    console.log('Headers de respuesta:', response.headers);
+    
     if (response.ok) {
+      console.log('✅ Contraseña actualizada exitosamente!');
       successDiv.textContent = '¡Contraseña actualizada exitosamente!';
       successDiv.style.display = 'block';
       document.getElementById('resetForm').reset();
@@ -78,10 +87,13 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
       }, 3000);
     } else {
       const error = await response.json();
-      errorDiv.textContent = error.message || 'Error al actualizar contraseña';
+      console.log('❌ Error de respuesta:', JSON.stringify(error, null, 2));
+      errorDiv.textContent = error.message || `Error ${response.status}: al actualizar contraseña`;
       errorDiv.style.display = 'block';
     }
   } catch (error) {
+    console.error('❌ Error de conexión:', error.message);
+    console.error('Stack:', error.stack);
     errorDiv.textContent = 'Error de conexión. Intenta nuevamente.';
     errorDiv.style.display = 'block';
   } finally {
