@@ -34,7 +34,8 @@ app.get('/reset-password', async (req, res) => {
         {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'apikey': process.env.SUPABASE_ANON_KEY
           },
           body: JSON.stringify({
             code: code
