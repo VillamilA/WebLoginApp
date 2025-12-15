@@ -27,12 +27,14 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
     return;
   }
 
-  // Obtener access token de la URL
+  // Obtener token de la URL (access_token o recovery_token)
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const accessToken = params.get('access_token');
+  const recoveryToken = params.get('recovery_token');
+  const token = accessToken || recoveryToken;
 
-  if (!accessToken) {
+  if (!token) {
     errorDiv.textContent = 'Token inválido o expirado';
     errorDiv.style.display = 'block';
     return;
@@ -48,7 +50,7 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ password })
     });
