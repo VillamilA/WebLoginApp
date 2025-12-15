@@ -29,12 +29,27 @@ document.getElementById('resetForm').addEventListener('submit', async (e) => {
 
   // Obtener access token de la URL
   const hash = window.location.hash.substring(1);
-  const params = new URLSearchParams(hash);
-  const accessToken = params.get('access_token');
+  const search = window.location.search.substring(1);
+  const hashParams = new URLSearchParams(hash);
+  const searchParams = new URLSearchParams(search);
+  
+  // Primero verificar si hay errores en la URL
+  const error = hashParams.get('error') || searchParams.get('error');
+  const errorDescription = hashParams.get('error_description') || searchParams.get('error_description');
+  
+  if (error) {
+    errorDiv.textContent = `Error de Supabase: ${errorDescription || error}`;
+    errorDiv.style.display = 'block';
+    console.error('Supabase error:', error, errorDescription);
+    return;
+  }
+  
+  const accessToken = hashParams.get('access_token');
 
   if (!accessToken) {
-    errorDiv.textContent = 'Token inválido o expirado';
+    errorDiv.textContent = 'Token inválido o expirado. Revisa que el link sea correcto y no haya sido usado antes.';
     errorDiv.style.display = 'block';
+    console.error('No access_token in URL. Hash:', hash, 'Search:', search);
     return;
   }
 
