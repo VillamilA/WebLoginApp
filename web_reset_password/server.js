@@ -27,10 +27,10 @@ app.get('/reset-password', async (req, res) => {
   if (code) {
     try {
       console.log('Step 1: Intercambiando code por access_token...');
-      console.log('URL:', `${process.env.SUPABASE_URL}/auth/v1/token?grant_type=recovery`);
+      console.log('URL:', `${process.env.SUPABASE_URL}/auth/v1/token`);
       
       const response = await fetch(
-        `${process.env.SUPABASE_URL}/auth/v1/token?grant_type=recovery`,
+        `${process.env.SUPABASE_URL}/auth/v1/token`,
         {
           method: 'POST',
           headers: {
@@ -38,7 +38,8 @@ app.get('/reset-password', async (req, res) => {
             'apikey': process.env.SUPABASE_ANON_KEY
           },
           body: JSON.stringify({
-            code: code
+            code: code,
+            grant_type: 'authorization_code'
           })
         }
       );
