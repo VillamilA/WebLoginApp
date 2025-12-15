@@ -21,9 +21,15 @@ app.get('/', (req, res) => {
 app.get('/reset-password', async (req, res) => {
   const code = req.query.code;
   
+  console.log('=== /reset-password request ===');
+  console.log('Code:', code);
+  console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+  console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+  
   // Si viene el code, intercambiarlo por access_token
   if (code) {
     try {
+      console.log('Intentando intercambiar code...');
       const response = await fetch(
         `${process.env.SUPABASE_URL}/auth/v1/verify`,
         {
@@ -39,15 +45,22 @@ app.get('/reset-password', async (req, res) => {
         }
       );
 
+      console.log('Respuesta de Supabase status:', response.status);
       const data = await response.json();
+      console.log('Respuesta de Supabase:', JSON.stringify(data, null, 2));
       
       if (data.access_token) {
-        // Redirigir con el access_token en el hash
+        console.log('✅ Access token obtenido, redirigiendo...');
         return res.redirect(`/reset-password#access_token=${data.access_token}`);
+      } else {
+        console.log('❌ No se obtuvo access_token');
       }
     } catch (error) {
-      console.error('Error intercambiando code:', error);
+      console.error('❌ Error intercambiando code:', error.message);
+      console.error('Stack:', error.stack);
     }
+  } else {
+    console.log('No hay code en la URL');
   }
   
   res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
